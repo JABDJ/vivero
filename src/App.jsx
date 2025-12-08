@@ -1,18 +1,17 @@
-import { useState } from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
+import Products from './pages/Products'
+import PrivateRoute from './components/PrivateRoute'
 
-import viteLogo from '/vite.svg'
-import './index.css'
-
-function App() {
-  const [count, setCount] = useState(0)
-
+export default function App() {
   return (
-    <>
-      <div>
-        <h1 className='bg-amber-700 flex-4'> hola</h1>
-      </div>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+        <Route path="/products" element={<PrivateRoute><Products /></PrivateRoute>} />
+      </Routes>
+    </BrowserRouter>
   )
 }
-
-export default App
