@@ -1,1 +1,30 @@
 @import "tailwindcss";
+
+@theme {
+  /* Definimos los colores personalizados del tema aquí */
+  --color-background: #0f172a;
+  --color-surface: #1e293b;
+  --color-primary: #3b82f6;
+
+  /* Animaciones personalizadas */
+  --animate-fade-in: fade-in 0.3s ease-out;
+  --animate-scale-up: scale-up 0.3s ease-out;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes scale-up {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+}
+
+/* Estilos globales */
+html, body {
+  height: 100%;
+  margin: 0;
+  background-color: var(--color-background); /* Color de fondo por defecto */
+  color: white;
+  font-family: system-ui, -apple-system, sans-serif;
+}

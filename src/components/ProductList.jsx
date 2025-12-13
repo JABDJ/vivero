@@ -2,19 +2,71 @@ import { supabase } from '../supabaseClient'
 
 export default function ProductList({ products, fetchProducts, setEditing }) {
   const handleDelete = async (id) => {
-    await supabase.from('products').delete().eq('id', id)
-    fetchProducts()
+    if(!window.confirm("¿Estás seguro de eliminar este producto?")) return;
+    const { error } = await supabase.from('products').delete().eq('id', id)
+    
+    if (error) {
+        alert("Error al eliminar: " + error.message)
+    } else {
+        fetchProducts()
+    }
+  }
+
+  if (!products || products.length === 0) {
+    return <div className="p-12 text-center text-gray-500">No hay productos registrados aún.</div>
   }
 
   return (
-    <ul>
-      {products.map(p => (
-        <li key={p.id}>
-          {p.name} - ${p.price} - Stock: {p.stock}
-          <button onClick={() => setEditing(p)}>Editar</button>
-          <button onClick={() => handleDelete(p.id)}>Eliminar</button>
-        </li>
-      ))}
-    </ul>
+    <table className="table w-full text-left">
+      <thead className="bg-surface text-gray-400 font-medium uppercase text-xs tracking-wider border-b border-gray-700">
+        <tr>
+          <th className="py-4 pl-6">Imagen</th>
+          <th>Nombre</th>
+          <th>Categoría</th>
+          <th>Precio</th>
+          <th className="text-right pr-6">Acciones</th>
+        </tr>
+      </thead>
+      <tbody className="text-gray-300 divide-y divide-gray-700/50">
+        {products.map(p => (
+          <tr key={p.id} className="hover:bg-white/5 transition-colors group">
+            <td className="py-4 pl-6">
+              <div className="avatar">
+                <div className="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center text-xs ring-1 ring-white/10">
+                   IMG
+                </div>
+              </div>
+            </td>
+            <td>
+              {/* CORRECCIÓN AQUÍ: p.nombre en lugar de p.name */}
+              <div className="font-bold text-white group-hover:text-primary transition-colors">{p.nombre}</div>
+              {/* CORRECCIÓN AQUÍ: p.descripcion en lugar de p.description */}
+              <div className="text-xs text-gray-500 truncate max-w-[150px]">{p.descripcion}</div>
+            </td>
+            <td>
+              {/* CORRECCIÓN AQUÍ: p.categoria */}
+              <span className="badge bg-blue-500/10 text-blue-400 border-none text-xs font-semibold px-3 py-2">
+                {p.categoria || 'General'}
+              </span>
+            </td>
+            <td className="font-mono text-emerald-400 font-bold">
+              {/* CORRECCIÓN AQUÍ: p.precio */}
+              ${p.precio}
+            </td>
+            <td className="text-right pr-6">
+              <div className="flex items-center justify-end gap-3 opacity-80 group-hover:opacity-100">
+                <button onClick={() => setEditing(p)} className="text-gray-400 hover:text-primary transition-colors">
+                  Editar
+                </button>
+                <button onClick={() => handleDelete(p.id)} className="text-red-400 hover:text-red-300 flex items-center gap-1 transition-colors">
+                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                   Eliminar
+                </button>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   )
 }
