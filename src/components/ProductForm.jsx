@@ -4,7 +4,9 @@ import { supabase } from '../supabaseClient'
 // En src/components/ProductForm.jsx
 
 export default function ProductForm({ fetchProducts, editing, setEditing, onClose }) {
-  // 1. Asegúrate que el estado incluya 'category'
+  // Estado para controlar si estamos escribiendo una categoría nueva
+  const [isCustomCategory, setIsCustomCategory] = useState(false)
+
   const [form, setForm] = useState({ 
     name: '', 
     description: '', 
@@ -17,15 +19,24 @@ export default function ProductForm({ fetchProducts, editing, setEditing, onClos
   // Cargar datos si estamos editando
   useEffect(() => {
     if (editing) {
+      const predefinedCategories = ["Belleza", "Perfumes", "Muebles", "Tecnología"];
+      const currentCategory = editing.categoria || 'General';
+      
+      // Si la categoría que viene de la DB NO está en la lista fija, activamos el modo texto
+      const isCustom = !predefinedCategories.includes(currentCategory);
+      setIsCustomCategory(isCustom);
+
       setForm({
-        name: editing.nombre,           // Mapeamos lo que viene de la DB (español) al form (inglés)
+        name: editing.nombre,           
         description: editing.descripcion,
         price: editing.precio,
         stock: editing.stock,
-        category: editing.categoria || 'General'
+        category: currentCategory
       })
     } else {
+      // Resetear formulario para nuevo producto
       setForm({ name: '', description: '', price: '', stock: '', category: 'Belleza' })
+      setIsCustomCategory(false)
     }
   }, [editing])
 
@@ -33,12 +44,12 @@ export default function ProductForm({ fetchProducts, editing, setEditing, onClos
     e.preventDefault()
     setLoading(true)
     
-    // 2. Preparamos los datos para Supabase (Traducción Inglés -> Español)
+    // Preparamos los datos para Supabase
     const datosParaSupabase = {
       nombre: form.name,
       descripcion: form.description,
-      precio: parseFloat(form.price), // Aseguramos que sea número
-      stock: parseInt(form.stock),    // Aseguramos que sea entero
+      precio: parseFloat(form.price),
+      stock: parseInt(form.stock),
       categoria: form.category
     }
 
@@ -71,10 +82,7 @@ export default function ProductForm({ fetchProducts, editing, setEditing, onClos
     }
   }
 
-  // ... el resto de tu return (JSX) sigue igual ...
-
   return (
-    // Tarjeta Modal idéntica a la imagen 1
     <div className="bg-surface w-full max-w-lg rounded-2xl shadow-2xl border border-gray-700 p-8 relative animate-scale-up">
       <h2 className="text-2xl font-bold text-white mb-6">
         {editing ? 'Editar Producto' : 'Agregar Nuevo Producto'}
@@ -107,7 +115,7 @@ export default function ProductForm({ fetchProducts, editing, setEditing, onClos
               onChange={e => setForm({ ...form, price: e.target.value })} 
             />
           </div>
-          {/* Input: Categoría/Stock (Simulado como el select de la imagen) */}
+          {/* Input: Stock */}
           <div className="form-control">
             <label className="label text-gray-400 text-sm font-medium pb-1">Stock</label>
             <div className="flex gap-2">
@@ -118,24 +126,60 @@ export default function ProductForm({ fetchProducts, editing, setEditing, onClos
                 placeholder="0"
                 onChange={e => setForm({ ...form, stock: e.target.value })}
               />
-              <button type="button" className="btn btn-square btn-primary text-lg font-bold">+</button>
+              
             </div>
           </div>
         </div>
 
+        {/* Input: Categoría (Modificado para soportar nueva categoría) */}
         <div className="form-control">
-  <label className="label text-gray-400 text-sm font-medium pb-1">Categoría</label>
-  <select 
-    className="select bg-[#111827] border border-gray-700 text-white w-full focus:border-primary"
-    value={form.category}
-    onChange={e => setForm({ ...form, category: e.target.value })}
-  >
-    <option value="Belleza">Belleza</option>
-    <option value="Perfumes">Perfumes</option>
-    <option value="Muebles">Muebles</option>
-    <option value="Tecnología">Tecnología</option>
-  </select>
-</div>
+          <label className="label text-gray-400 text-sm font-medium pb-1">Categoría</label>
+          
+          {!isCustomCategory ? (
+            // Opción A: Select Normal
+            <select 
+              className="select bg-[#111827] border border-gray-700 text-white w-full focus:border-primary"
+              value={form.category}
+              onChange={e => {
+                if (e.target.value === 'custom_option_value') {
+                  setIsCustomCategory(true);
+                  setForm({ ...form, category: '' }); // Limpiamos para que escriba
+                } else {
+                  setForm({ ...form, category: e.target.value });
+                }
+              }}
+            >
+              <option value="Belleza">Belleza</option>
+              <option value="Perfumes">Perfumes</option>
+              <option value="Muebles">Muebles</option>
+              <option value="Tecnología">Tecnología</option>
+              <option value="custom_option_value" className="font-bold text-blue-400 bg-gray-900">+ Nueva Categoría</option>
+            </select>
+          ) : (
+            // Opción B: Input de Texto Libre
+            <div className="flex gap-2 animate-fade-in">
+              <input 
+                type="text" 
+                className="input bg-[#111827] border border-gray-700 text-white w-full focus:border-primary placeholder-gray-500"
+                placeholder="Escribe la nueva categoría..."
+                value={form.category}
+                autoFocus
+                onChange={e => setForm({ ...form, category: e.target.value })}
+              />
+              <button 
+                type="button" 
+                onClick={() => {
+                  setIsCustomCategory(false);
+                  setForm({ ...form, category: 'Belleza' }); // Volver a un valor por defecto seguro
+                }}
+                className="btn btn-square btn-ghost text-red-400 hover:bg-red-500/10 border border-gray-700"
+                title="Cancelar y volver a la lista"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Input: Descripción */}
         <div className="form-control">
