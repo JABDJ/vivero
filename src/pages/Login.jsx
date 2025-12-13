@@ -60,7 +60,7 @@ export default function Login() {
           <p className="text-lg text-blue-100 mb-8">
             {isSignUp 
               ? 'Crea tu cuenta hoy y empieza a gestionar tu inventario de manera profesional.'
-              : 'Gestiona tu inventario, categorías y productos en un entorno moderno y azul.'}
+              : 'Gestiona tu inventario, categorías y productos en un entorno moderno.'}
           </p>
         </div>
       </div>
