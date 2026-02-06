@@ -23,7 +23,9 @@ export default function ProductList({ products, fetchProducts, setEditing }) {
           <th className="py-4 pl-6">Imagen</th>
           <th>Nombre</th>
           <th>Categoría</th>
+          <th>Subcategoría</th>
           <th>Precio</th>
+          <th>Estado</th>
           <th className="text-right pr-6">Acciones</th>
         </tr>
       </thead>
@@ -63,9 +65,28 @@ export default function ProductList({ products, fetchProducts, setEditing }) {
                 {p.categoria || 'General'}
               </span>
             </td>
+            <td>
+              {/* Subcategoría */}
+              {p.subcategoria ? (
+                <span className="badge bg-purple-500/10 text-purple-400 border-none text-xs font-semibold px-3 py-2">
+                  {p.subcategoria}
+                </span>
+              ) : (
+                <span className="text-gray-600 text-xs">-</span>
+              )}
+            </td>
             <td className="font-mono text-emerald-400 font-bold">
               {/* CORRECCIÓN AQUÍ: p.precio */}
               ${p.precio}
+            </td>
+            <td>
+              {/* Estado de disponibilidad */}
+              <span className={`badge border-none text-xs font-semibold px-3 py-2 ${p.disponible !== false
+                  ? 'bg-green-500/10 text-green-400'
+                  : 'bg-red-500/10 text-red-400'
+                }`}>
+                {p.disponible !== false ? 'Disponible' : 'No disponible'}
+              </span>
             </td>
             <td className="text-right pr-6">
               <div className="flex items-center justify-end gap-3 opacity-80 group-hover:opacity-100">

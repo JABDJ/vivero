@@ -13,7 +13,9 @@ export default function ProductForm({ fetchProducts, editing, setEditing, onClos
     price: '',
     stock: '',
     category: 'Belleza', // Valor por defecto
-    imageUrl: '' // Nueva: URL o Base64 de la imagen
+    subcategory: '', // Nueva: Subcategoría
+    imageUrl: '', // Nueva: URL o Base64 de la imagen
+    available: true // Nueva: Disponibilidad (por defecto true)
   })
   const [loading, setLoading] = useState(false)
   const [imageMode, setImageMode] = useState('url') // 'url' o 'file'
@@ -36,7 +38,9 @@ export default function ProductForm({ fetchProducts, editing, setEditing, onClos
         price: editing.precio,
         stock: editing.stock,
         category: currentCategory,
-        imageUrl: editing.imagen_url || ''
+        subcategory: editing.subcategoria || '',
+        imageUrl: editing.imagen_url || '',
+        available: editing.disponible !== undefined ? editing.disponible : true
       })
 
       // Configurar preview si hay imagen
@@ -47,7 +51,7 @@ export default function ProductForm({ fetchProducts, editing, setEditing, onClos
       }
     } else {
       // Resetear formulario para nuevo producto
-      setForm({ name: '', description: '', price: '', stock: '', category: 'Belleza', imageUrl: '' })
+      setForm({ name: '', description: '', price: '', stock: '', category: 'Belleza', subcategory: '', imageUrl: '', available: true })
       setIsCustomCategory(false)
       setImagePreview('')
       setImageError('')
@@ -120,7 +124,9 @@ export default function ProductForm({ fetchProducts, editing, setEditing, onClos
       precio: parseFloat(form.price),
       stock: parseInt(form.stock),
       categoria: form.category,
-      imagen_url: form.imageUrl || null
+      subcategoria: form.subcategory || null,
+      imagen_url: form.imageUrl || null,
+      disponible: form.available
     }
 
     try {
@@ -249,6 +255,54 @@ export default function ProductForm({ fetchProducts, editing, setEditing, onClos
               </button>
             </div>
           )}
+        </div>
+
+        {/* Input: Subcategoría */}
+        <div className="form-control">
+          <label className="label text-gray-400 text-sm font-medium pb-1">Subcategoría (Opcional)</label>
+          <input
+            type="text"
+            className="input bg-[#111827] border border-gray-700 text-white w-full focus:border-primary placeholder-gray-600"
+            placeholder="Ej: Plantines, Macetas, Herramientas..."
+            value={form.subcategory}
+            onChange={e => setForm({ ...form, subcategory: e.target.value })}
+          />
+        </div>
+
+        {/* Grid: Stock y Disponibilidad */}
+        <div className="grid grid-cols-2 gap-5">
+          {/* Input: Stock */}
+          <div className="form-control">
+            <label className="label text-gray-400 text-sm font-medium pb-1">Stock</label>
+            <input
+              type="number"
+              className="input bg-[#111827] border border-gray-700 text-white w-full focus:border-primary"
+              value={form.stock}
+              placeholder="0"
+              onChange={e => setForm({ ...form, stock: e.target.value })}
+            />
+          </div>
+
+          {/* Toggle: Disponibilidad */}
+          <div className="form-control">
+            <label className="label text-gray-400 text-sm font-medium pb-1">Disponibilidad</label>
+            <div className="flex items-center gap-3 h-12">
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, available: !form.available })}
+                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface ${form.available ? 'bg-green-500' : 'bg-red-500'
+                  }`}
+              >
+                <span
+                  className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${form.available ? 'translate-x-7' : 'translate-x-1'
+                    }`}
+                />
+              </button>
+              <span className={`text-sm font-medium ${form.available ? 'text-green-400' : 'text-red-400'}`}>
+                {form.available ? 'Disponible' : 'No disponible'}
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Input: Imagen del Producto */}
