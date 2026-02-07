@@ -24,6 +24,7 @@ export default function ProductList({ products, fetchProducts, setEditing }) {
           <th>Nombre</th>
           <th>Categoría</th>
           <th>Subcategoría</th>
+          <th>Stock</th>
           <th>Precio</th>
           <th>Estado</th>
           <th className="text-right pr-6">Acciones</th>
@@ -75,6 +76,17 @@ export default function ProductList({ products, fetchProducts, setEditing }) {
                 <span className="text-gray-600 text-xs">-</span>
               )}
             </td>
+            <td>
+              {/* Stock con indicador visual */}
+              <span className={`badge border-none text-xs font-semibold px-3 py-2 ${p.stock === 0
+                  ? 'bg-red-500/10 text-red-400'
+                  : p.stock <= 5
+                    ? 'bg-yellow-500/10 text-yellow-400'
+                    : 'bg-gray-500/10 text-gray-400'
+                }`}>
+                {p.stock || 0}
+              </span>
+            </td>
             <td className="font-mono text-emerald-400 font-bold">
               {/* CORRECCIÓN AQUÍ: p.precio */}
               ${p.precio}
@@ -82,8 +94,8 @@ export default function ProductList({ products, fetchProducts, setEditing }) {
             <td>
               {/* Estado de disponibilidad */}
               <span className={`badge border-none text-xs font-semibold px-3 py-2 ${p.disponible !== false
-                  ? 'bg-green-500/10 text-green-400'
-                  : 'bg-red-500/10 text-red-400'
+                ? 'bg-green-500/10 text-green-400'
+                : 'bg-red-500/10 text-red-400'
                 }`}>
                 {p.disponible !== false ? 'Disponible' : 'No disponible'}
               </span>

@@ -178,33 +178,17 @@ export default function ProductForm({ fetchProducts, editing, setEditing, onClos
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-5">
-          {/* Input: Precio */}
-          <div className="form-control">
-            <label className="label text-gray-400 text-sm font-medium pb-1">Precio ($)</label>
-            <input
-              type="number"
-              className="input bg-[#111827] border border-gray-700 text-white w-full focus:border-primary"
-              placeholder="0.00"
-              value={form.price}
-              required
-              onChange={e => setForm({ ...form, price: e.target.value })}
-            />
-          </div>
-          {/* Input: Stock */}
-          <div className="form-control">
-            <label className="label text-gray-400 text-sm font-medium pb-1">Stock</label>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                className="input bg-[#111827] border border-gray-700 text-white w-full focus:border-primary"
-                value={form.stock}
-                placeholder="0"
-                onChange={e => setForm({ ...form, stock: e.target.value })}
-              />
-
-            </div>
-          </div>
+        {/* Input: Precio */}
+        <div className="form-control">
+          <label className="label text-gray-400 text-sm font-medium pb-1">Precio ($)</label>
+          <input
+            type="number"
+            className="input bg-[#111827] border border-gray-700 text-white w-full focus:border-primary"
+            placeholder="0.00"
+            value={form.price}
+            required
+            onChange={e => setForm({ ...form, price: e.target.value })}
+          />
         </div>
 
         {/* Input: Categoría (Modificado para soportar nueva categoría) */}
