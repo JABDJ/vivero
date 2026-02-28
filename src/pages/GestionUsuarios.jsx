@@ -4,10 +4,16 @@ import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { createClient } from '@supabase/supabase-js'
 
-// Cliente separado para crear usuarios sin afectar la sesión del admin
+// Cliente separado para crear usuarios — persistSession:false evita tocar el localStorage del admin
 const supabaseSignup = createClient(
     import.meta.env.VITE_SUPABASE_URL,
-    import.meta.env.VITE_SUPABASE_ANON_KEY
+    import.meta.env.VITE_SUPABASE_ANON_KEY,
+    {
+        auth: {
+            persistSession: false,      // No guarda nada en localStorage
+            autoRefreshToken: false,    // No necesita refrescar token
+        }
+    }
 )
 
 // ── MODAL de Nuevo / Editar Usuario ────────────────────────────────────────
@@ -15,27 +21,38 @@ function UsuarioModal({ onClose, onRefresh }) {
     const [form, setForm] = useState({ email: '', password: '', role: 'user' })
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState(null)
+    const [success, setSuccess] = useState(false)
 
     const handleSubmit = async (e) => {
         e.preventDefault()
         setSaving(true)
         setError(null)
         try {
-            // 1. Crear usuario en Supabase Auth (sin afectar sesión admin)
+            // 1. Crear usuario en Supabase Auth con cliente sin persistencia
             const { error: signUpError } = await supabaseSignup.auth.signUp({
                 email: form.email,
                 password: form.password,
             })
-            if (signUpError) throw signUpError
+            // Si el usuario ya existe en auth.users, solo actualizamos su perfil
+            if (signUpError && !signUpError.message.toLowerCase().includes('already registered')) {
+                throw signUpError
+            }
 
-            // 2. Registrar en profiles con el rol asignado
+            // 2. Registrar/actualizar en profiles con el rol asignado
+            //    (upsert por si el trigger ya creó la fila con role='user')
             const { error: profileError } = await supabase
                 .from('profiles')
-                .insert({ email: form.email, role: form.role })
+                .upsert({ email: form.email, role: form.role }, { onConflict: 'email' })
             if (profileError) throw profileError
 
+            // 3. Mostrar éxito y refrescar lista
+            setSuccess(true)
             onRefresh()
-            onClose()
+            setTimeout(() => {
+                setSuccess(false)
+                setForm({ email: '', password: '', role: 'user' })
+                onClose()
+            }, 1500)
         } catch (err) {
             setError(err.message)
         } finally {
@@ -92,6 +109,13 @@ function UsuarioModal({ onClose, onRefresh }) {
                             <option value="admin">Administrador</option>
                         </select>
                     </div>
+
+                    {/* Éxito */}
+                    {success && (
+                        <p className="text-green-400 text-sm bg-green-500/10 border border-green-500/20 rounded-lg px-4 py-2">
+                            ✅ Usuario creado exitosamente
+                        </p>
+                    )}
 
                     {/* Error */}
                     {error && (
