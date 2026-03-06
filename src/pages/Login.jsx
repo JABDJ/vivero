@@ -37,6 +37,8 @@ export default function Login() {
       // Redirigir según el rol
       if (userRole === 'admin') {
         navigate('/dashboard')
+      } else if (userRole === 'vendedor') {
+        navigate('/vendedor')
       } else {
         navigate('/inicio')
       }

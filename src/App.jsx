@@ -4,6 +4,9 @@ import Dashboard from './pages/Dashboard'
 import Products from './pages/Products'
 import InicioUsuario from './pages/InicioUsuario'
 import GestionUsuarios from './pages/GestionUsuarios'
+import VendedorDashboard from './pages/VendedorDashboard'
+import Facturas from './pages/Facturas'
+import HistorialFacturas from './pages/HistorialFacturas'
 import PrivateRoute from './components/PrivateRoute'
 
 export default function App() {
@@ -27,6 +30,23 @@ export default function App() {
         <Route path="/usuarios" element={
           <PrivateRoute allowedRoles={['admin']}>
             <GestionUsuarios />
+          </PrivateRoute>
+        } />
+
+        {/* Solo vendedor */}
+        <Route path="/vendedor" element={
+          <PrivateRoute allowedRoles={['vendedor']}>
+            <VendedorDashboard />
+          </PrivateRoute>
+        } />
+        <Route path="/facturas" element={
+          <PrivateRoute allowedRoles={['vendedor']}>
+            <Facturas />
+          </PrivateRoute>
+        } />
+        <Route path="/historial" element={
+          <PrivateRoute allowedRoles={['vendedor']}>
+            <HistorialFacturas />
           </PrivateRoute>
         } />
 

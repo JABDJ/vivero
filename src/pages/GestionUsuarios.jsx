@@ -18,7 +18,7 @@ const supabaseSignup = createClient(
 
 // ── MODAL de Nuevo / Editar Usuario ────────────────────────────────────────
 function UsuarioModal({ onClose, onRefresh }) {
-    const [form, setForm] = useState({ email: '', password: '', role: 'user' })
+    const [form, setForm] = useState({ email: '', password: '', role: 'vendedor' })
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState(null)
     const [success, setSuccess] = useState(false)
@@ -105,8 +105,9 @@ function UsuarioModal({ onClose, onRefresh }) {
                             onChange={(e) => setForm({ ...form, role: e.target.value })}
                             className="w-full bg-gray-800/60 border border-gray-700 text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
-                            <option value="user">Usuario</option>
+                            <option value="vendedor">Vendedor</option>
                             <option value="admin">Administrador</option>
+                            <option value="user">Usuario</option>
                         </select>
                     </div>
 
@@ -173,11 +174,11 @@ function UsuarioList({ usuarios, onChangeRole, onDelete }) {
                             </div>
                         </td>
                         <td>
-                            <span className={`badge border-none text-xs font-semibold px-3 py-2 ${u.role === 'admin'
-                                ? 'bg-blue-500/10 text-blue-400'
-                                : 'bg-gray-500/10 text-gray-400'
+                            <span className={`badge border-none text-xs font-semibold px-3 py-2 ${u.role === 'admin' ? 'bg-blue-500/10 text-blue-400'
+                                    : u.role === 'vendedor' ? 'bg-emerald-500/10 text-emerald-400'
+                                        : 'bg-gray-500/10 text-gray-400'
                                 }`}>
-                                {u.role === 'admin' ? 'Administrador' : 'Usuario'}
+                                {u.role === 'admin' ? 'Administrador' : u.role === 'vendedor' ? 'Vendedor' : 'Usuario'}
                             </span>
                         </td>
                         <td className="text-right pr-6">
@@ -188,8 +189,9 @@ function UsuarioList({ usuarios, onChangeRole, onDelete }) {
                                     onChange={(e) => onChangeRole(u.email, e.target.value)}
                                     className="bg-gray-800 border border-gray-700 text-white rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 >
-                                    <option value="user">Usuario</option>
+                                    <option value="vendedor">Vendedor</option>
                                     <option value="admin">Administrador</option>
+                                    <option value="user">Usuario</option>
                                 </select>
                                 {/* Eliminar */}
                                 <button

@@ -1,15 +1,31 @@
+import { useState } from 'react'
 import { supabase } from '../supabaseClient'
 
 export default function ProductList({ products, fetchProducts, setEditing }) {
+  const [stockEdit, setStockEdit] = useState({}) // { [id]: valor temporal }
+
   const handleDelete = async (id) => {
     if (!window.confirm("¿Estás seguro de eliminar este producto?")) return;
     const { error } = await supabase.from('products').delete().eq('id', id)
-
     if (error) {
       alert("Error al eliminar: " + error.message)
     } else {
       fetchProducts()
     }
+  }
+
+  const handleStockChange = async (p, delta) => {
+    const nuevoStock = Math.max(0, (p.stock || 0) + delta)
+    await supabase.from('products').update({ stock: nuevoStock }).eq('id', p.id)
+    fetchProducts()
+  }
+
+  const handleStockInputSave = async (p) => {
+    const val = Number(stockEdit[p.id])
+    if (isNaN(val) || val < 0) return
+    await supabase.from('products').update({ stock: val }).eq('id', p.id)
+    setStockEdit(prev => { const copy = { ...prev }; delete copy[p.id]; return copy })
+    fetchProducts()
   }
 
   if (!products || products.length === 0) {
@@ -55,19 +71,15 @@ export default function ProductList({ products, fetchProducts, setEditing }) {
               </div>
             </td>
             <td>
-              {/* CORRECCIÓN AQUÍ: p.nombre en lugar de p.name */}
               <div className="font-bold text-white group-hover:text-primary transition-colors">{p.nombre}</div>
-              {/* CORRECCIÓN AQUÍ: p.descripcion en lugar de p.description */}
               <div className="text-xs text-gray-500 truncate max-w-[150px]">{p.descripcion}</div>
             </td>
             <td>
-              {/* CORRECCIÓN AQUÍ: p.categoria */}
               <span className="badge bg-blue-500/10 text-blue-400 border-none text-xs font-semibold px-3 py-2">
                 {p.categoria || 'General'}
               </span>
             </td>
             <td>
-              {/* Subcategoría */}
               {p.subcategoria ? (
                 <span className="badge bg-purple-500/10 text-purple-400 border-none text-xs font-semibold px-3 py-2">
                   {p.subcategoria}
@@ -76,23 +88,53 @@ export default function ProductList({ products, fetchProducts, setEditing }) {
                 <span className="text-gray-600 text-xs">-</span>
               )}
             </td>
+
+            {/* STOCK con edición rápida inline */}
             <td>
-              {/* Stock con indicador visual */}
-              <span className={`badge border-none text-xs font-semibold px-3 py-2 ${p.stock === 0
-                  ? 'bg-red-500/10 text-red-400'
-                  : p.stock <= 5
-                    ? 'bg-yellow-500/10 text-yellow-400'
-                    : 'bg-gray-500/10 text-gray-400'
-                }`}>
-                {p.stock || 0}
-              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => handleStockChange(p, -1)}
+                  className="w-6 h-6 rounded bg-gray-700 hover:bg-red-500/20 text-gray-300 hover:text-red-400 flex items-center justify-center text-sm font-bold transition-colors"
+                  title="Restar 1"
+                >−</button>
+
+                {stockEdit[p.id] !== undefined ? (
+                  <input
+                    type="number" min={0}
+                    value={stockEdit[p.id]}
+                    onChange={(e) => setStockEdit(prev => ({ ...prev, [p.id]: e.target.value }))}
+                    onBlur={() => handleStockInputSave(p)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleStockInputSave(p)}
+                    className="w-14 text-center bg-gray-900 border border-emerald-500 text-white rounded py-0.5 text-xs focus:outline-none"
+                    autoFocus
+                  />
+                ) : (
+                  <span
+                    onClick={() => setStockEdit(prev => ({ ...prev, [p.id]: p.stock || 0 }))}
+                    title="Clic para editar stock"
+                    className={`cursor-pointer badge border-none text-xs font-semibold px-3 py-2 ${p.stock === 0
+                      ? 'bg-red-500/10 text-red-400'
+                      : p.stock <= 5
+                        ? 'bg-yellow-500/10 text-yellow-400'
+                        : 'bg-gray-500/10 text-gray-400'
+                      }`}
+                  >
+                    {p.stock || 0}
+                  </span>
+                )}
+
+                <button
+                  onClick={() => handleStockChange(p, +1)}
+                  className="w-6 h-6 rounded bg-gray-700 hover:bg-emerald-500/20 text-gray-300 hover:text-emerald-400 flex items-center justify-center text-sm font-bold transition-colors"
+                  title="Sumar 1"
+                >+</button>
+              </div>
             </td>
+
             <td className="font-mono text-emerald-400 font-bold">
-              {/* CORRECCIÓN AQUÍ: p.precio */}
               ${p.precio}
             </td>
             <td>
-              {/* Estado de disponibilidad */}
               <span className={`badge border-none text-xs font-semibold px-3 py-2 ${p.disponible !== false
                 ? 'bg-green-500/10 text-green-400'
                 : 'bg-red-500/10 text-red-400'

@@ -22,7 +22,9 @@ export default function PrivateRoute({ children, allowedRoles }) {
 
   // Rol no permitido → redirigir a su ruta correcta
   if (allowedRoles && !allowedRoles.includes(role)) {
-    const fallback = role === 'admin' ? '/dashboard' : '/inicio'
+    let fallback = '/inicio'
+    if (role === 'admin') fallback = '/dashboard'
+    else if (role === 'vendedor') fallback = '/vendedor'
     return <Navigate to={fallback} replace />
   }
 
