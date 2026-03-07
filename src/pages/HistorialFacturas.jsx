@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import AdminSidebar from '../components/AdminSidebar'
+import { formatPrice } from '../utils/format'
 
 export default function HistorialFacturas() {
     const { logout, user, role } = useAuth()
@@ -161,7 +162,7 @@ export default function HistorialFacturas() {
 
                                     <div className="flex items-center gap-6">
                                         <span className="text-emerald-400 font-extrabold text-lg font-mono">
-                                            ${Number(f.total).toFixed(2)}
+                                            ${formatPrice(f.total)}
                                         </span>
                                         {/* Chevron animado */}
                                         <svg
@@ -195,15 +196,15 @@ export default function HistorialFacturas() {
                                                         <tr key={item.id}>
                                                             <td className="py-2 text-white font-medium">{item.nombre_producto}</td>
                                                             <td className="py-2 text-center text-gray-400">{item.cantidad}</td>
-                                                            <td className="py-2 text-right text-gray-400 font-mono">${Number(item.precio_unitario).toFixed(2)}</td>
-                                                            <td className="py-2 text-right text-emerald-400 font-bold font-mono">${Number(item.subtotal).toFixed(2)}</td>
+                                                            <td className="py-2 text-right text-gray-400 font-mono">${formatPrice(item.precio_unitario)}</td>
+                                                            <td className="py-2 text-right text-emerald-400 font-bold font-mono">${formatPrice(item.subtotal)}</td>
                                                         </tr>
                                                     ))}
                                                 </tbody>
                                                 <tfoot>
                                                     <tr className="border-t border-gray-600">
                                                         <td colSpan={3} className="pt-3 text-right text-gray-400 font-medium text-sm">Total</td>
-                                                        <td className="pt-3 text-right text-emerald-400 font-extrabold text-base font-mono">${Number(f.total).toFixed(2)}</td>
+                                                        <td className="pt-3 text-right text-emerald-400 font-extrabold text-base font-mono">${formatPrice(f.total)}</td>
                                                     </tr>
                                                 </tfoot>
                                             </table>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
+import { formatPrice } from '../utils/format'
 
 export default function VendedorDashboard() {
     const { logout, user } = useAuth()
@@ -159,7 +160,7 @@ export default function VendedorDashboard() {
                                             {/* Precio */}
                                             <td>
                                                 <span className="text-emerald-400 font-semibold font-mono">
-                                                    ${Number(p.precio ?? 0).toFixed(2)}
+                                                    ${formatPrice(p.precio ?? 0)}
                                                 </span>
                                             </td>
                                             {/* Stock */}

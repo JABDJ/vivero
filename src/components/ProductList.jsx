@@ -1,8 +1,18 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
+import { formatPrice } from '../utils/format'
 
 export default function ProductList({ products, fetchProducts, setEditing }) {
-  const [stockEdit, setStockEdit] = useState({}) // { [id]: valor temporal }
+  // Estado local de stock para actualizaciones optimistas (sin esperar Supabase)
+  const [localStock, setLocalStock] = useState({})
+  const [stockEdit, setStockEdit] = useState({})
+
+  // Sincronizar localStock cuando llegan nuevos productos
+  useEffect(() => {
+    const map = {}
+    products?.forEach(p => { map[p.id] = p.stock ?? 0 })
+    setLocalStock(map)
+  }, [products])
 
   const handleDelete = async (id) => {
     if (!window.confirm("¿Estás seguro de eliminar este producto?")) return;
@@ -14,18 +24,32 @@ export default function ProductList({ products, fetchProducts, setEditing }) {
     }
   }
 
-  const handleStockChange = async (p, delta) => {
-    const nuevoStock = Math.max(0, (p.stock || 0) + delta)
-    await supabase.from('products').update({ stock: nuevoStock }).eq('id', p.id)
-    fetchProducts()
+  const handleStockChange = (p, delta) => {
+    // 1. Actualizar UI inmediatamente (optimistic)
+    const nuevoStock = Math.max(0, (localStock[p.id] ?? p.stock ?? 0) + delta)
+    setLocalStock(prev => ({ ...prev, [p.id]: nuevoStock }))
+    // 2. Guardar en Supabase en background
+    supabase.from('products').update({ stock: nuevoStock }).eq('id', p.id)
+      .then(({ error }) => {
+        if (error) {
+          // Revertir si falla
+          setLocalStock(prev => ({ ...prev, [p.id]: p.stock ?? 0 }))
+          console.error('Error actualizando stock:', error.message)
+        }
+      })
   }
 
   const handleStockInputSave = async (p) => {
     const val = Number(stockEdit[p.id])
     if (isNaN(val) || val < 0) return
-    await supabase.from('products').update({ stock: val }).eq('id', p.id)
+    // Optimistic
+    setLocalStock(prev => ({ ...prev, [p.id]: val }))
     setStockEdit(prev => { const copy = { ...prev }; delete copy[p.id]; return copy })
-    fetchProducts()
+    const { error } = await supabase.from('products').update({ stock: val }).eq('id', p.id)
+    if (error) {
+      setLocalStock(prev => ({ ...prev, [p.id]: p.stock ?? 0 }))
+      console.error('Error guardando stock:', error.message)
+    }
   }
 
   if (!products || products.length === 0) {
@@ -110,16 +134,16 @@ export default function ProductList({ products, fetchProducts, setEditing }) {
                   />
                 ) : (
                   <span
-                    onClick={() => setStockEdit(prev => ({ ...prev, [p.id]: p.stock || 0 }))}
+                    onClick={() => setStockEdit(prev => ({ ...prev, [p.id]: localStock[p.id] ?? 0 }))}
                     title="Clic para editar stock"
-                    className={`cursor-pointer badge border-none text-xs font-semibold px-3 py-2 ${p.stock === 0
+                    className={`cursor-pointer badge border-none text-xs font-semibold px-3 py-2 ${(localStock[p.id] ?? 0) === 0
                       ? 'bg-red-500/10 text-red-400'
-                      : p.stock <= 5
+                      : (localStock[p.id] ?? 0) <= 5
                         ? 'bg-yellow-500/10 text-yellow-400'
                         : 'bg-gray-500/10 text-gray-400'
                       }`}
                   >
-                    {p.stock || 0}
+                    {localStock[p.id] ?? 0}
                   </span>
                 )}
 
@@ -132,7 +156,7 @@ export default function ProductList({ products, fetchProducts, setEditing }) {
             </td>
 
             <td className="font-mono text-emerald-400 font-bold">
-              ${p.precio}
+              ${formatPrice(p.precio)}
             </td>
             <td>
               <span className={`badge border-none text-xs font-semibold px-3 py-2 ${p.disponible !== false

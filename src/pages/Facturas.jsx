@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
+import { formatPrice } from '../utils/format'
 
 export default function Facturas() {
     const { logout, user } = useAuth()
@@ -216,7 +217,7 @@ export default function Facturas() {
                                         <option value="">— Seleccionar producto —</option>
                                         {products.map(p => (
                                             <option key={p.id} value={String(p.id)}>
-                                                {p.nombre} — ${Number(p.precio).toFixed(2)} (Stock: {p.stock})
+                                                {p.nombre} — ${formatPrice(p.precio)} (Stock: {p.stock})
                                             </option>
                                         ))}
                                     </select>
@@ -289,7 +290,7 @@ export default function Facturas() {
                                                     )}
                                                     <div>
                                                         <p className="text-white text-sm font-medium">{item.product.nombre}</p>
-                                                        <p className="text-gray-500 text-xs">Stock: {item.product.stock} | ${Number(item.product.precio).toFixed(2)} c/u</p>
+                                                        <p className="text-gray-500 text-xs">Stock: {item.product.stock} | ${formatPrice(item.product.precio)} c/u</p>
                                                     </div>
                                                 </div>
                                                 {/* Botón eliminar */}
@@ -323,7 +324,7 @@ export default function Facturas() {
                                                     >+</button>
                                                 </div>
                                                 <span className="text-emerald-400 font-bold text-sm">
-                                                    ${(item.product.precio * item.cantidad).toFixed(2)}
+                                                    ${formatPrice(item.product.precio * item.cantidad)}
                                                 </span>
                                             </div>
                                         </div>
@@ -334,7 +335,7 @@ export default function Facturas() {
                             {/* Total */}
                             <div className="border-t border-gray-700 mt-4 pt-4 flex justify-between items-center">
                                 <span className="text-gray-400 font-medium">Total</span>
-                                <span className="text-2xl font-extrabold text-emerald-400">${total.toFixed(2)}</span>
+                                <span className="text-2xl font-extrabold text-emerald-400">${formatPrice(total)}</span>
                             </div>
 
                             {/* Mensajes */}
