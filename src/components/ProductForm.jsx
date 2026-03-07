@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
+import { useToast } from './Toast'
 
 // En src/components/ProductForm.jsx
 
 export default function ProductForm({ fetchProducts, editing, setEditing, onClose }) {
+  const { toast } = useToast()
   // Estado para controlar si estamos escribiendo una categoría nueva
   const [isCustomCategory, setIsCustomCategory] = useState(false)
 
@@ -149,10 +151,10 @@ export default function ProductForm({ fetchProducts, editing, setEditing, onClos
 
       fetchProducts()
       onClose()
-      alert("Producto guardado correctamente")
+      toast(editing ? 'Producto actualizado correctamente' : 'Producto creado correctamente', 'success')
     } catch (error) {
-      console.error("Error detallado:", error)
-      alert("Error al guardar: " + error.message)
+      console.error('Error detallado:', error)
+      toast('Error al guardar: ' + error.message, 'error')
     } finally {
       setLoading(false)
     }

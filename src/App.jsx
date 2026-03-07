@@ -8,10 +8,12 @@ import VendedorDashboard from './pages/VendedorDashboard'
 import Facturas from './pages/Facturas'
 import HistorialFacturas from './pages/HistorialFacturas'
 import PrivateRoute from './components/PrivateRoute'
+import { ToastContainer } from './components/Toast'
 
 export default function App() {
   return (
     <BrowserRouter>
+      <ToastContainer />
       <Routes>
         {/* Ruta pública */}
         <Route path="/" element={<Login />} />

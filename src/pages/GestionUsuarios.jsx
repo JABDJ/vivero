@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import AdminSidebar from '../components/AdminSidebar'
+import { useToast } from '../components/Toast'
+import ConfirmModal from '../components/ConfirmModal'
 import { createClient } from '@supabase/supabase-js'
 
 // Cliente separado para crear usuarios — persistSession:false evita tocar el localStorage del admin
@@ -217,6 +219,8 @@ function UsuarioList({ usuarios, onChangeRole, onDelete }) {
 export default function GestionUsuarios() {
     const { logout } = useAuth()
     const navigate = useNavigate()
+    const { toast } = useToast()
+    const [confirmDeleteUser, setConfirmDeleteUser] = useState(null) // email a eliminar
 
     const [usuarios, setUsuarios] = useState([])
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -234,12 +238,14 @@ export default function GestionUsuarios() {
     const handleChangeRole = async (email, newRole) => {
         await supabase.from('profiles').update({ role: newRole }).eq('email', email)
         fetchUsuarios()
+        toast(`Rol actualizado a "${newRole}"`, 'success')
     }
 
     const handleDelete = async (email) => {
-        if (!window.confirm(`¿Eliminar el perfil de ${email}?`)) return
         await supabase.from('profiles').delete().eq('email', email)
+        setConfirmDeleteUser(null)
         fetchUsuarios()
+        toast('Usuario eliminado correctamente', 'success')
     }
 
     const handleLogout = async () => {
@@ -278,17 +284,27 @@ export default function GestionUsuarios() {
                         <UsuarioList
                             usuarios={usuarios}
                             onChangeRole={handleChangeRole}
-                            onDelete={handleDelete}
+                            onDelete={(email) => setConfirmDeleteUser(email)}
                         />
                     </div>
                 </div>
             </main>
 
-            {/* MODAL */}
+            {/* MODAL NUEVO USUARIO */}
             {isModalOpen && (
                 <UsuarioModal
                     onClose={() => setIsModalOpen(false)}
                     onRefresh={fetchUsuarios}
+                />
+            )}
+
+            {/* MODAL CONFIRMAR ELIMINACIÓN */}
+            {confirmDeleteUser && (
+                <ConfirmModal
+                    title="Eliminar usuario"
+                    message={`¿Eliminar el perfil de ${confirmDeleteUser}? Esta acción no se puede deshacer.`}
+                    onConfirm={() => handleDelete(confirmDeleteUser)}
+                    onCancel={() => setConfirmDeleteUser(null)}
                 />
             )}
         </div>

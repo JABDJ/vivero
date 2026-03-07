@@ -4,10 +4,13 @@ import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import AdminSidebar from '../components/AdminSidebar'
 import { formatPrice } from '../utils/format'
+import { generarFacturaPDF } from '../utils/generatePDF'
+import { useToast } from '../components/Toast'
 
 export default function HistorialFacturas() {
     const { logout, user, role } = useAuth()
     const navigate = useNavigate()
+    const { toast } = useToast()
     const [facturas, setFacturas] = useState([])
     const [loading, setLoading] = useState(true)
     const [expandedId, setExpandedId] = useState(null)   // ID de factura expandida
@@ -160,10 +163,34 @@ export default function HistorialFacturas() {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-6">
+                                    <div className="flex items-center gap-3">
                                         <span className="text-emerald-400 font-extrabold text-lg font-mono">
                                             ${formatPrice(f.total)}
                                         </span>
+                                        {/* Botón descargar PDF */}
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                const its = itemsMap[f.id] || []
+                                                if (its.length === 0) {
+                                                    toast('Expande la factura primero para cargar los ítems.', 'info')
+                                                    return
+                                                }
+                                                generarFacturaPDF(f, its)
+                                            }}
+                                            title="Descargar PDF"
+                                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold
+                                                bg-gradient-to-r from-blue-600/20 to-cyan-600/20
+                                                border border-cyan-500/30 text-cyan-400
+                                                hover:from-blue-600/40 hover:to-cyan-600/40 hover:text-white
+                                                transition-all"
+                                        >
+                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            PDF
+                                        </button>
                                         {/* Chevron animado */}
                                         <svg
                                             className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${expandedId === f.id ? 'rotate-180' : ''}`}
