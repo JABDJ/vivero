@@ -45,7 +45,7 @@ export default function App() {
           </PrivateRoute>
         } />
         <Route path="/historial" element={
-          <PrivateRoute allowedRoles={['vendedor']}>
+          <PrivateRoute allowedRoles={['vendedor', 'admin']}>
             <HistorialFacturas />
           </PrivateRoute>
         } />

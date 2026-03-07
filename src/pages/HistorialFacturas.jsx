@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
+import AdminSidebar from '../components/AdminSidebar'
 
 export default function HistorialFacturas() {
-    const { logout, user } = useAuth()
+    const { logout, user, role } = useAuth()
     const navigate = useNavigate()
     const [facturas, setFacturas] = useState([])
     const [loading, setLoading] = useState(true)
@@ -65,50 +66,41 @@ export default function HistorialFacturas() {
     return (
         <div className="flex h-screen w-full bg-background text-white overflow-hidden font-sans">
 
-            {/* SIDEBAR */}
-            <aside className="w-64 bg-background border-r border-gray-800 hidden md:flex flex-col z-20">
-                <div className="p-6 flex items-center gap-3 border-b border-gray-800">
-                    <div className="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center font-bold text-white shadow-lg shadow-emerald-500/50">V</div>
-                    <div className="flex flex-col">
-                        <span className="text-sm font-bold tracking-wide text-white">JABDJ</span>
-                        <span className="text-xs text-emerald-400 font-medium">Vendedor</span>
+            {/* SIDEBAR: admin usa el componente completo, vendedor el suyo propio */}
+            {role === 'admin' ? (
+                <AdminSidebar />
+            ) : (
+                <aside className="w-64 bg-background border-r border-gray-800 hidden md:flex flex-col z-20">
+                    <div className="p-6 flex items-center gap-3 border-b border-gray-800">
+                        <div className="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center font-bold text-white shadow-lg shadow-emerald-500/50">V</div>
+                        <div className="flex flex-col">
+                            <span className="text-sm font-bold tracking-wide text-white">JABDJ</span>
+                            <span className="text-xs text-emerald-400 font-medium">Vendedor</span>
+                        </div>
                     </div>
-                </div>
-
-                <nav className="flex-1 px-4 space-y-1 mt-4 overflow-y-auto">
-                    <Link to="/vendedor" className="flex items-center gap-3 px-3 py-2.5 text-gray-400 hover:bg-surface hover:text-white rounded-lg transition-colors">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
-                        <span className="text-sm font-medium">Productos</span>
-                    </Link>
-
-                    <Link to="/facturas" className="flex items-center gap-3 px-3 py-2.5 text-gray-400 hover:bg-surface hover:text-white rounded-lg transition-colors">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <span className="text-sm font-medium">Nueva Factura</span>
-                    </Link>
-
-                    {/* Historial — activo */}
-                    <Link to="/historial" className="flex items-center gap-3 px-3 py-2.5 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-lg shadow-lg">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span className="text-sm font-medium">Historial</span>
-                    </Link>
-                </nav>
-
-                <div className="p-4 border-t border-gray-800 space-y-2">
-                    <div className="px-3 py-2 text-xs text-gray-500 truncate">{user?.email}</div>
-                    <button onClick={handleLogout} className="flex items-center gap-2 text-red-400 hover:text-red-300 px-4 py-2 w-full transition-colors rounded-lg hover:bg-red-500/10">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                        Cerrar Sesión
-                    </button>
-                </div>
-            </aside>
+                    <nav className="flex-1 px-4 space-y-1 mt-4 overflow-y-auto">
+                        <Link to="/vendedor" className="flex items-center gap-3 px-3 py-2.5 text-gray-400 hover:bg-surface hover:text-white rounded-lg transition-colors">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                            <span className="text-sm font-medium">Productos</span>
+                        </Link>
+                        <Link to="/facturas" className="flex items-center gap-3 px-3 py-2.5 text-gray-400 hover:bg-surface hover:text-white rounded-lg transition-colors">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            <span className="text-sm font-medium">Nueva Factura</span>
+                        </Link>
+                        <Link to="/historial" className="flex items-center gap-3 px-3 py-2.5 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-lg shadow-lg">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <span className="text-sm font-medium">Historial</span>
+                        </Link>
+                    </nav>
+                    <div className="p-4 border-t border-gray-800 space-y-2">
+                        <div className="px-3 py-2 text-xs text-gray-500 truncate">{user?.email}</div>
+                        <button onClick={handleLogout} className="flex items-center gap-2 text-red-400 hover:text-red-300 px-4 py-2 w-full transition-colors rounded-lg hover:bg-red-500/10">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                            Cerrar Sesión
+                        </button>
+                    </div>
+                </aside>
+            )}
 
             {/* CONTENIDO */}
             <main className="flex-1 flex flex-col relative overflow-hidden bg-background">

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
+import AdminSidebar from '../components/AdminSidebar'
 import { createClient } from '@supabase/supabase-js'
 
 // Cliente separado para crear usuarios — persistSession:false evita tocar el localStorage del admin
@@ -175,8 +176,8 @@ function UsuarioList({ usuarios, onChangeRole, onDelete }) {
                         </td>
                         <td>
                             <span className={`badge border-none text-xs font-semibold px-3 py-2 ${u.role === 'admin' ? 'bg-blue-500/10 text-blue-400'
-                                    : u.role === 'vendedor' ? 'bg-emerald-500/10 text-emerald-400'
-                                        : 'bg-gray-500/10 text-gray-400'
+                                : u.role === 'vendedor' ? 'bg-emerald-500/10 text-emerald-400'
+                                    : 'bg-gray-500/10 text-gray-400'
                                 }`}>
                                 {u.role === 'admin' ? 'Administrador' : u.role === 'vendedor' ? 'Vendedor' : 'Usuario'}
                             </span>
@@ -250,43 +251,8 @@ export default function GestionUsuarios() {
         <div className="flex h-screen w-full bg-background text-white overflow-hidden font-sans">
 
             {/* SIDEBAR */}
-            <aside className="w-64 bg-background border-r border-gray-800 hidden md:flex flex-col z-20">
-                <div className="p-6 flex items-center gap-3 border-b border-gray-800">
-                    <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/50">J</div>
-                    <div className="flex flex-col">
-                        <span className="text-sm font-bold tracking-wide text-white">JABDJ</span>
-                        <span className="text-xs text-gray-500">& ArSistema</span>
-                    </div>
-                </div>
+            <AdminSidebar />
 
-                <nav className="flex-1 px-4 space-y-1 mt-4 overflow-y-auto">
-                    {/* Inventario */}
-                    <Link to="/dashboard" className="flex items-center gap-3 px-3 py-2.5 text-gray-400 hover:bg-surface hover:text-white rounded-lg transition-colors">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
-                        <span className="text-sm font-medium">Inventario</span>
-                    </Link>
-
-                    {/* Usuarios — Activo */}
-                    <Link to="/usuarios" className="flex items-center gap-3 px-3 py-2.5 bg-primary text-white rounded-lg shadow-lg shadow-blue-900/40">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        <span className="text-sm font-medium">Usuarios</span>
-                    </Link>
-                </nav>
-
-                <div className="p-4 border-t border-gray-800">
-                    <button onClick={handleLogout} className="flex items-center gap-2 text-red-400 hover:text-red-300 px-4 py-2 w-full transition-colors rounded-lg hover:bg-red-500/10">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                        Cerrar Sesión
-                    </button>
-                </div>
-            </aside>
 
             {/* CONTENIDO PRINCIPAL */}
             <main className="flex-1 flex flex-col relative overflow-hidden bg-background">
